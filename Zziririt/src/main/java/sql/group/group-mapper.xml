@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+
+<!-- 공통기능 카테고리 받아오기 -->
+	<entry key="getCategoryList">
+		select category_name from category where status = 1
+	</entry>
+<!-- group-mapper -->
+
+<!-- 용환구역 용환구역 용환구역 용환구역 용환구역 용환구역 용환구역 용환구역 용환구역 용환구역 용환구역 용환구역 -->
+<!-- Search Group Page -->
+	<entry key="searchGroupPage">
+		select count(*)
+		  from tgroup
+		  where 1=1
+	</entry>
+<!-- Search Group list -->
+	<entry key="searchGroupList">
+		SELECT *
+		FROM (
+                            SELECT t.*, ROW_NUMBER() OVER (ORDER BY GROUP_NO desc ) AS row_num, 
+                            (select count(*) from group_mem where group_mem.group_no=t.group_no and group_mem.status = 1) as current_mem
+	</entry>
+<!-- check wish -->
+	<entry key="checkWish">
+		select count(*) from wishlist where group_no = ? and user_no =?
+	</entry>
+
+<!-- removeWish -->
+	<entry key="removeWish">
+		delete from wishlist where group_no =? and user_no =?
+	</entry>
+<!-- addWish -->
+	<entry key="addWish">
+		insert into wishlist values(?,?)
+	</entry>
+<!-- 그룹 name 체크 ajax -->	
+	<entry key="groupNameCheck">
+		select count(*) from tgroup  where group_name = ?
+	</entry>
+<!-- 그룹 생성 구문 -->
+	<entry key="createGroup">
+		
+		insert into tgroup (group_no, group_name, group_descript, group_limit, group_createday, group_area, group_profile, status, category_name)
+					values (SEQ_GNO.nextval, ?, ?, ?, sysdate, ?, ?, 1, ?)
+	</entry>
+<!-- 그룹 맴버 넣기 -->
+	<entry key="insertGroupMember"> insert into group_mem (group_mem_no, group_mem_type, group_mem_ment, group_join_date, status, user_no, group_no) values (SEQ_GMNO.nextval, ?, ?, sysdate, 1, ?, </entry>
+
+<!-- 모임 리스트 뽑기 -->
+	<entry key="getMeetingList">
+	SELECT meeting_no, meeting_name, meeting_spot,
+       TO_CHAR(meeting_time, 'rrrr') AS year,
+       TO_CHAR(meeting_time, 'MM') AS month,
+       TO_CHAR(meeting_time, 'dd') AS day,
+       TO_CHAR(meeting_time, 'HH24') AS hour,
+       TO_CHAR(meeting_time, 'MI') AS min,
+       meeting_content,
+       (SELECT COUNT(*) FROM meeting_mem WHERE meeting_mem.meeting_no = meeting.meeting_no) AS curmem,
+       meeting_limit,
+       create_user,
+       (select user_id from member where user_no = CREATE_USER) as user_name
+		FROM meeting
+		WHERE group_no = ?
+		AND EXTRACT(YEAR FROM meeting_time) = ?
+		AND EXTRACT(MONTH FROM meeting_time) = ?
+		AND status = 1
+	</entry>
+<!-- 그룹 1개 기본 정보 -->
+	<entry key="getGroupViewNormal">
+		select tgroup.*, (select count(*) from group_mem where group_mem.group_no = tgroup.group_no) as curmem from tgroup where group_no =? and status=1 
+	</entry>
+<!-- 유저 타입확인 -->
+	<entry key="getUserType">
+		select group_mem_type from group_mem where user_no = ? and group_no = ?
+	</entry>
+<!-- 그룹 신청 -->
+	<entry key="joinGroup">		
+		INSERT INTO GROUP_MEM (GROUP_MEM_NO, GROUP_MEM_TYPE, GROUP_MEM_MENT, GROUP_JOIN_DATE, STATUS, USER_NO, GROUP_NO)
+		VALUES 					(SEQ_GMNO.NEXTVAL, 1, ?, SYSDATE, 1, ?, ?)
+	</entry>
+<!-- 그룹 이미지 변경 -->
+	<entry key="changeGroupImg">
+		update tgroup
+		set group_profile = ?
+		where group_no = ?
+	</entry>
+<!-- 그룹 이름 변경 -->
+	<entry key="changeGroupName">
+		update tgroup
+		set group_name = ?
+		where group_no = ?
+	</entry>
+<!-- 그룹 설명 변경 -->
+	<entry key="changeDescript">
+		update tgroup
+		set GROUP_DESCRIPT = ?
+		where group_no = ?
+	</entry>
+<!-- 미팅 개설 -->
+	<entry key="createMeeting">
+		insert into meeting(meeting_no,meeting_name,meeting_spot,meeting_time,meeting_content,meeting_limit,group_no,status,create_user) 
+					values(seq_mno.nextval,  ?,        ?,           ?,           ?,              ?,              ?,      1,      ?)
+	</entry>
+<!-- 미팅개설자 추가 -->
+	<entry key="insertCreateMeetingMem">
+		insert into meeting_mem values(seq_mno.currval,?)
+	</entry>
+<!-- 미팅 Day로 리스트 조회 -->
+	<entry key="getMeetingListByDay">
+		select meeting.* ,TO_CHAR(MEETING_TIME, 'yyyy-mm-dd hh24:mi')as day,(select user_nickname from member where user_no = CREATE_USER) as nick from meeting where meeting_no = ?
+	</entry>
+<!-- 미팅 id로 조회 1건 -->
+	<entry key="getMeetingById">
+		select meeting.* ,TO_CHAR(MEETING_TIME, 'yyyy-mm-dd hh24:mi') as time , 
+		(select user_nickName from member where user_no = create_user) as nickname , 
+		(select count(*) from MEETING_MEM where group_mem_no= ? and MEETING_NO = ?) as check from meeting where MEETING_NO = ?
+	</entry>
+<!-- 가입 그룹 조회 -->
+	<entry key="getJoinGroupList">
+		select tgroup.*,(select count(*) from group_mem where group_no = tgroup.group_no) as curmem from tgroup join group_mem on tgroup.group_no = group_mem.group_no where group_mem.status = 1 and group_mem.user_no =?
+	</entry>
+<!-- 찜 그룹 조회 -->
+	<entry key="getWishGroupList">
+		select tgroup.*,(select count(*) from group_mem where group_no = tgroup.group_no)as curmem from tgroup join wishlist on tgroup.group_no = wishlist.group_no where wishlist.user_no = ?
+	</entry>
+<!-- 그룹 최신 조회 -->
+	<entry key="getNewGroupList">
+SELECT S.*, ROWNUM
+            FROM(select g.*, gm.count 
+                    from tgroup g,(select group_no, count(*) as count
+                                            from group_mem
+                                            group by(group_no)) gm
+                    where g.group_no = gm.group_no
+                    and g.group_limit > gm.count
+                    order by g.GROUP_CREATEDAY desc)   S 
+WHERE 7 > ROWNUM
+	</entry>
+<!-- 그룹 정원 임박 조회 -->
+	<entry key="getCloseGroupList">
+ select sub.*, rownum	
+        from	(select g.*, gm.count, (g.group_limit-gm.count) as close
+                    from tgroup g, (select group_no, count(*) as count
+                                            from group_mem
+                                             group by(group_no))  gm
+                    where g.group_no = gm.group_no
+                    and g.group_limit > gm.count
+                    order by close)  sub    
+	where  7>rownum 
+		
+	</entry>
+	
+<!-- 은서구역 은서구역 은서구역 은서구역 은서구역 은서구역 은서구역 은서구역 은서구역 은서구역  -->
+<!-- 게시글 전체 조회 -->
+<!-- xxxxxxxxxxxxxx -->
+<entry key="selectListCount"> SELECT COUNT(*) COUNT FROM TGROUP WHERE not STATUS = '0' </entry>
+<entry key="selectTime"> SELECT WRITE_TIME FROM GROUP_BOARD WHERE BOARD_NO = ? </entry>
+<!--  게시글 리스트를 구하는 쿼리문  -->
+<!--  <entry key = "selectGroupList">
+		select *
+	from( select gb.*, row_number() over(order by board_no desc) as row_num, 
+		 (select user_nickname from member where gb.group_mem_no=user_no) as user_nickname
+	           from group_board gb
+	           where status=1
+	           and group_no = ?
+	        )
+	where row_num between ? and ?
+
+	</entry>  -->
+<!--  STATUS =0 "삭제"/ STATUS=-1 "신고" / STATUS = 1 "정상  -->
+<!-- 게시글 전체 조회 -->
+<entry key="selectGroupBoardList"> select * FROM(SELECT ROWNUM RNUM, A.* FROM( select BOARD_NO, BOARD_TITLE, BOARD_CONTENT, WRITE_TIME, g.STATUS "STATUS", m.USER_NICKNAME "USER_NICKNAME", t.GROUP_NAME "GROUP_NAME" from group_board g left join TGROUP t using(group_no) left join group_mem gm using(group_mem_no) left join member m USING (USER_NO) WHERE not g.STATUS = 0 ORDER BY BOARD_NO DESC)A) WHERE RNUM BETWEEN ? AND ? </entry>
+<!--  총 게시글의 갯수를 구하는 쿼리문  -->
+<entry key="selectGroupBoardListCount"> SELECT COUNT(*) COUNT FROM group_board WHERE STATUS = 1 or STATUS = -1 </entry>
+<!--  게시글 한건 조회   -->
+<entry key="selectGroup"> SELECT GB.BOARD_NO AS GROUP_BOARD_NO, GB.BOARD_TITLE AS GROUP_BOARD_TITLE, GB.BOARD_CONTENT AS GROUP_BOARD_CONTENT, GB.WRITE_TIME AS WRITE_TIME, M.USER_NICKNAME AS WRITER_NICKNAME FROM GROUP_BOARD GB JOIN GROUP_MEM GM ON GB.GROUP_MEM_NO = GM.GROUP_MEM_NO JOIN MEMBER M ON GM.USER_NO = M.USER_NO WHERE GB.BOARD_NO =? </entry>
+<!--   게시글 추가  -->
+<entry key="insertGroupBoard"> INSERT INTO GROUP_BOARD (BOARD_NO, BOARD_TITLE, BOARD_CONTENT, WRITE_TIME, STATUS, GROUP_MEM_NO, GROUP_NO) VALUES (SEQ_GBNO.NEXTVAL, ?, ?, SYSDATE, 1, ?, ?) </entry>
+<!--  일반게시글 수정용 쿼리문 (UPDATE BOARD용)  -->
+<entry key="updateGroup"> UPDATE GROUP_BOARD SET BOARD_TITLE =? ,BOARD_CONTENT = ? ,WRITE_TIME = SYSDATE WHERE BOARD_NO = ? AND STATUS = 1 </entry>
+<!--  게시글 삭제   -->
+<entry key="deleteGroupBoard"> UPDATE GROUP_BOARD G SET G.STATUS = 0 WHERE BOARD_NO = ? AND GROUP_MEM_NO = ? </entry>
+<!--  유저 조회   -->
+<entry key="selectUserNum"> SELECT GROUP_MEM_NO FROM GROUP_MEM WHERE USER_No = ? </entry>
+<!--  유저 번호 조회   -->
+<entry key="selectUserNo"> SELECT USER_NO FROM MEMBER WHERE USER_ID = ? </entry>
+<!--  게시글 신고   -->
+<entry key="declareGroupBoard"> UPDATE GROUP_BOARD SET STATUS = -2 WHERE BOARD_NO = ? </entry>
+<!--  그룹 조회  -->
+<entry key="searchUserGroup"> SELECT GROUP_NO, TG.GROUP_NAME "GROUP_NAME" FROM GROUP_MEM JOIN TGROUP TG USING (GROUP_NO) JOIN MEMBER M USING (USER_NO) WHERE USER_ID = ? </entry>
+<!--  댓글리스트 조회용 쿼리문  -->
+<entry key="selectCommentList"> SELECT COMMENT_NO, CONTENT, USER_NICKNAME , TO_CHAR(WRITE_TIME, 'YY/MM/DD HH:MI:SS') "WRITE_TIME" FROM GROUP_COMMENT GC JOIN MEMBER ON (GROUP_MEM_NO = USER_NO) WHERE GC.BOARD_NO = ? AND NOT GC.STATUS = 0 ORDER BY COMMENT_NO DESC </entry>
+<!--  댓글작성용 쿼리문  -->
+<entry key="insertComment"> INSERT INTO GROUP_COMMENT (COMMENT_NO, CONTENT, WRITE_TIME, STATUS, GROUP_MEM_NO, BOARD_NO) VALUES (SEQ_GCNO.NEXTVAL, ?, SYSDATE, 1, ?, ?) </entry>
+<!--  댓글 수정용 쿼리문  -->
+<entry key="updateComment"> UPDATE GROUP_COMMENT GC SET CONTENT=? WHERE COMMENT_NO = ? </entry>
+<!--   댓글 삭제용 쿼리문  -->
+<entry key="deleteComment"> UPDATE GROUP_COMMENT GC SET GC.STATUS = 0 WHERE COMMENT_NO = ? </entry>
+<!--   댓글 신고용 쿼리문  -->
+<entry key="declareComment"> UPDATE GROUP_COMMENT GC SET GC.STATUS = -2 WHERE COMMENT_NO = ? </entry>
+
+</properties>

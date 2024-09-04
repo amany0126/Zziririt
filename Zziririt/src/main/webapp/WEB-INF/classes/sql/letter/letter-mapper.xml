@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+
+	<!-- 총 수신함 쪽지의 갯수를 구하는 쿼리문 -->
+	<entry key="selectListCounts">
+		SELECT 'A' AS SOURCE, COUNT(*) AS COUNT
+		  FROM LETTER
+		 WHERE STATUS IN (0, 1)
+		   AND USER_RECEIVER = ?
+		 UNION
+		SELECT 'B' AS SOURCE, COUNT(*) AS COUNT
+		  FROM LETTER
+		 WHERE STATUS IN (0, 2)
+		   AND USER_SENDER = ?
+		 UNION
+		SELECT 'C' AS SOURCE, COUNT(*) AS COUNT
+		  FROM LETTER
+		 WHERE STATUS = 4
+		   AND USER_SENDER = ?
+		   
+	</entry>
+	
+	<entry key="listReadNot">
+		SELECT COUNT(*) AS COUNT
+		  FROM LETTER
+		 WHERE STATUS IN (0, 1)
+		   AND USER_RECEIVER = ?
+		   AND COUNT = 0
+	</entry>
+
+	<!-- 수신함 키워드 검색 총 리스트 수 -->
+	<entry key="keywordReceiveListCount">
+		SELECT COUNT(*) COUNT
+		  FROM LETTER
+		 WHERE STATUS IN (0, 1)
+		   AND USER_RECEIVER = ?
+		   AND (LETTER_TITLE LIKE ? OR USER_SENDER LIKE ?)
+	</entry>
+	
+	<!-- 총 발신함 쪽지의 갯수를 구하는 쿼리문 -->
+	<entry key="selectSendListCount">
+		SELECT COUNT(*) COUNT
+		  FROM LETTER
+		 WHERE STATUS IN (0, 2)
+		   AND USER_SENDER = ?
+	</entry>
+	
+	<!--발신함 키워드 검색 총 리스트수 -->
+	<entry key="keywordSendListCount">
+		SELECT COUNT(*) COUNT
+		  FROM LETTER
+		 WHERE STATUS IN (0, 2)
+		   AND USER_SENDER = ?
+		   AND (LETTER_TITLE LIKE ? OR USER_RECEIVER LIKE ?)
+	</entry>
+	
+		<!-- 쪽지 보내기용 쿼리문 -->
+	<entry key="letterSending">
+        INSERT INTO LETTER( LETTER_NO
+                         , LETTER_TITLE
+		                 , LETTER_CONTENT
+		                 , USER_SENDER
+		                 , USER_RECEIVER)
+		           VALUES( SEQ_LNO.NEXTVAL
+                        , ?
+		                , ?
+		                , ?
+		                , ?)
+	</entry>
+	
+		<!-- 쪽지 목록 조회용 쿼리문 (페이징처리) -->
+	<entry key="selectReceiveList">
+		SELECT *
+		  FROM (
+		        SELECT ROWNUM RNUM
+		             , A.*
+		          FROM (
+		                SELECT LETTER_NO, LETTER_TITLE, LETTER_CONTENT
+		                	 , TO_CHAR(SEND_TIME, 'YYYY-MM-DD HH24:MI:SS') AS SEND_TIME
+		                	 , TO_CHAR(RECEIVE_TIME, 'YYYY-MM-DD HH24:MI:SS') AS RECEIVE_TIME
+		                	 , STATUS, USER_SENDER
+		                	 , USER_RECEIVER, COUNT, SAVE_RECEIVER
+		                  FROM LETTER L
+		                 WHERE STATUS IN (0, 1)
+		                   AND USER_RECEIVER = ?
+		                 ORDER BY SEND_TIME DESC, LETTER_TITLE ASC
+		               ) A
+		        )
+		 WHERE RNUM BETWEEN ? AND ?
+	</entry>
+	
+	<entry key="selectReadNotList">
+		SELECT *
+		  FROM (
+		        SELECT ROWNUM RNUM
+		             , A.*
+		          FROM (
+		                SELECT LETTER_NO, LETTER_TITLE, LETTER_CONTENT
+		                	 , TO_CHAR(SEND_TIME, 'YYYY-MM-DD HH24:MI:SS') AS SEND_TIME
+		                	 , TO_CHAR(RECEIVE_TIME, 'YYYY-MM-DD HH24:MI:SS') AS RECEIVE_TIME
+		                	 , STATUS, USER_SENDER
+		                	 , USER_RECEIVER, COUNT, SAVE_RECEIVER
+		                  FROM LETTER L
+		                 WHERE STATUS IN (0, 1)
+		                   AND USER_RECEIVER = ?
+		                   AND COUNT=0
+		                 ORDER BY SEND_TIME DESC, LETTER_TITLE ASC
+		               ) A
+		        )
+		 WHERE RNUM BETWEEN ? AND ?
+	</entry>
+
+		<!-- 쪽지 목록 조회용 쿼리문 (페이징처리) -->
+	<entry key="selectKeywordReceiveList">
+		SELECT *
+		  FROM (
+		        SELECT ROWNUM RNUM
+		             , A.*
+		          FROM (
+		                SELECT LETTER_NO, LETTER_TITLE, LETTER_CONTENT
+		                	 , TO_CHAR(SEND_TIME, 'YYYY-MM-DD HH24:MI:SS') AS SEND_TIME
+		                	 , TO_CHAR(RECEIVE_TIME, 'YYYY-MM-DD HH24:MI:SS') AS RECEIVE_TIME
+		                	 , STATUS, USER_SENDER
+		                	 , USER_RECEIVER, COUNT, SAVE_RECEIVER
+		                  FROM LETTER L
+		                 WHERE STATUS IN (0, 1)
+		                   AND USER_RECEIVER = ?
+		                   AND (LETTER_TITLE LIKE ? OR USER_SENDER LIKE ?)
+		                 ORDER BY SEND_TIME DESC, LETTER_TITLE ASC
+		               ) A
+		        )
+		 WHERE RNUM BETWEEN ? AND ?
+	</entry>
+	
+	<entry key="selectKeywordSendList">
+		SELECT *
+		  FROM (
+		        SELECT ROWNUM RNUM
+		             , A.*
+		          FROM (
+		                SELECT LETTER_NO, LETTER_TITLE, LETTER_CONTENT
+		                	 , TO_CHAR(SEND_TIME, 'YYYY-MM-DD HH24:MI:SS') AS SEND_TIME
+		                	 , TO_CHAR(RECEIVE_TIME, 'YYYY-MM-DD HH24:MI:SS') AS RECEIVE_TIME
+		                	 , STATUS, USER_SENDER
+		                	 , USER_RECEIVER, COUNT, SAVE_RECEIVER
+		                  FROM LETTER L
+		                 WHERE STATUS IN (0, 2)
+		                   AND USER_SENDER = ?
+		                   AND (LETTER_TITLE LIKE ? OR USER_RECEIVER LIKE ?)
+		                 ORDER BY SEND_TIME DESC, LETTER_TITLE ASC
+		               ) A
+		        )
+		 WHERE RNUM BETWEEN ? AND ?
+	</entry>
+	
+	<entry key="selectSendList">
+		SELECT *
+		  FROM (
+		        SELECT ROWNUM RNUM
+		             , A.*
+		          FROM (
+		                SELECT LETTER_NO, LETTER_TITLE, LETTER_CONTENT
+		                	 , TO_CHAR(SEND_TIME, 'YYYY-MM-DD HH24:MI:SS') AS SEND_TIME
+		                	 , TO_CHAR(RECEIVE_TIME, 'YYYY-MM-DD HH24:MI:SS') AS RECEIVE_TIME
+		                	 , STATUS, USER_SENDER
+		                	 , USER_RECEIVER, COUNT, SAVE_RECEIVER
+		                  FROM LETTER L
+		                 WHERE STATUS IN (0, 2)
+		                   AND USER_SENDER = ?
+		                 ORDER BY SEND_TIME DESC, LETTER_TITLE ASC
+		               ) A
+		        )
+		 WHERE RNUM BETWEEN ? AND ?
+	</entry>
+		<!-- 수신자 상태 체크용 쿼리문 -->
+	<entry key="checkUserStatus">
+	 SELECT STATUS
+           FROM MEMBER
+           WHERE USER_ID = ?
+	</entry>
+	
+		<!-- 바꿀 상태 번호를 뽑을 때 사용하는 쿼리문 -->
+	<entry key="checkStatusNo">
+		SELECT L.STATUS, L.USER_SENDER
+		  FROM LETTER L
+		  JOIN MEMBER M ON (USER_ID=USER_SENDER)
+		 WHERE LETTER_NO = ?
+	</entry>
+	
+	<!-- 쪽지 임시저장용 쿼리문 -->
+	<entry key="letterSaving">
+		INSERT INTO LETTER(LETTER_NO
+                         , LETTER_TITLE
+		                 , LETTER_CONTENT
+		                 , STATUS
+		                 , USER_SENDER
+		                 , USER_RECEIVER
+		                 , SAVE_RECEIVER)
+		           VALUES(SEQ_LNO.NEXTVAL
+                        , ?
+		                , ?
+		                , 4
+		                , ?
+		                , ?
+		                , ?)
+	</entry>
+	
+		<!-- 쪽지 임시저장 수정용 쿼리문 -->
+	<entry key="letterUpSaving">
+		UPDATE LETTER
+		   SET LETTER_TITLE = ?
+		     , LETTER_CONTENT = ?
+		     , USER_RECEIVER = ?
+		     , SEND_TIME = SYSDATE
+		     , SAVE_RECEIVER = ?
+		 WHERE LETTER_NO = ?
+	</entry>
+	
+			<!-- 쪽지 임시저장 보내기용 쿼리문 -->
+	<entry key="letterSaveSending">
+		UPDATE LETTER
+		   SET LETTER_TITLE = ?
+		     , LETTER_CONTENT = ?
+		     , STATUS = 0
+		     , USER_RECEIVER = ?
+		     , SEND_TIME = SYSDATE
+		 WHERE LETTER_NO = ?
+	</entry>
+	
+	<!-- 총 임시보관 쪽지의 갯수를 구하는 쿼리문 -->
+	<entry key="selectSaveListCount">
+		SELECT COUNT(*) COUNT
+		  FROM LETTER
+		 WHERE STATUS = 4
+		   AND USER_SENDER = ?
+	</entry>
+	
+	<!-- 임시보관 키워드 검색 리스트 총 개수 -->
+	<entry key="keywordSaveListCount">
+		SELECT COUNT(*) COUNT
+		  FROM LETTER
+		 WHERE STATUS = 4
+		   AND USER_SENDER = ?
+		   AND (LETTER_TITLE LIKE ? OR SAVE_RECEIVER LIKE ?)
+	</entry>
+	
+	<!-- 쪽지 목록 조회용 쿼리문 (페이징처리) -->
+	<entry key="selectSaveList">
+		SELECT *
+		  FROM (
+		        SELECT ROWNUM RNUM
+		             , A.*
+		          FROM (
+		                SELECT LETTER_NO, LETTER_TITLE, LETTER_CONTENT
+		                	 , TO_CHAR(SEND_TIME, 'YYYY-MM-DD HH24:MI:SS') AS SEND_TIME
+		                	 , TO_CHAR(RECEIVE_TIME, 'YYYY-MM-DD HH24:MI:SS') AS RECEIVE_TIME
+		                	 , STATUS, USER_SENDER
+		                	 , USER_RECEIVER, COUNT, SAVE_RECEIVER
+		                  FROM LETTER L
+		                 WHERE STATUS = 4
+		                   AND USER_SENDER = ?
+		                 ORDER BY SEND_TIME DESC, LETTER_TITLE ASC
+		               ) A
+		        )
+		 WHERE RNUM BETWEEN ? AND ?
+	</entry>
+
+	<entry key="selectKeywordSaveList">
+		SELECT *
+		  FROM (
+		        SELECT ROWNUM RNUM
+		             , A.*
+		          FROM (
+		                SELECT LETTER_NO, LETTER_TITLE, LETTER_CONTENT
+		                	 , TO_CHAR(SEND_TIME, 'YYYY-MM-DD HH24:MI:SS') AS SEND_TIME
+		                	 , TO_CHAR(RECEIVE_TIME, 'YYYY-MM-DD HH24:MI:SS') AS RECEIVE_TIME
+		                	 , STATUS, USER_SENDER
+		                	 , USER_RECEIVER, COUNT, SAVE_RECEIVER
+		                  FROM LETTER L
+		                 WHERE STATUS = 4
+		                   AND USER_SENDER = ?
+		                   AND (LETTER_TITLE LIKE ? OR SAVE_RECEIVER LIKE ?)
+		                 ORDER BY SEND_TIME DESC, LETTER_TITLE ASC
+		               ) A
+		        )
+		 WHERE RNUM BETWEEN ? AND ?
+	</entry>
+	
+		<!-- 쪽지 삭제용 쿼리문 -->
+	<entry key="letterDelete">
+		UPDATE LETTER
+		   SET STATUS = ?
+		 WHERE LETTER_NO = ?
+	</entry>
+	
+		<!-- 쪽지 상세정보 구하는 쿼리문 -->
+	<entry key="selectLetter">
+		SELECT *
+		  FROM LETTER
+		 WHERE LETTER_NO = ?
+	</entry>
+	
+		<!-- 쪽지 확인 횟수 쿼리문 -->
+	<entry key="increaseCount">
+		UPDATE LETTER
+		   SET COUNT = COUNT + 1
+		 WHERE LETTER_NO = ?
+	</entry>
+	
+	<!-- 쪽지 읽은 시간 저장용 쿼리문 -->
+	<entry key="setReadTime">
+		UPDATE LETTER
+		   SET RECEIVE_TIME = SYSDATE
+		 WHERE LETTER_NO = ?
+	</entry>
+	
+	<entry key="selectFirstLetterNo">
+		SELECT LETTER_NO
+		  FROM(
+			   SELECT *
+			     FROM LETTER
+			    WHERE STATUS = ?
+			      AND USER_SENDER = ?
+			    ORDER BY LETTER_NO DESC
+			    )
+		 WHERE ROWNUM = 1
+		 
+	</entry>
+
+</properties>

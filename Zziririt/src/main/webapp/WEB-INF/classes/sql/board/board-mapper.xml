@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+
+	<!-- board-mapper -->
+	
+	<!-- 총 게시글의 개수 구하는 쿼리문 -->
+	<entry key="selectListCount">
+		SELECT COUNT(*) COUNT 
+		  FROM BOARD 
+		 WHERE STATUS IN (1, -2)
+	</entry>
+	
+	<!-- 게시글 목록 조회용 쿼리문 (페이징 처리) + 좋아요 추가 (서브쿼리 이용) -->
+	<entry key="selectList">
+		SELECT * 
+		  FROM (
+		        SELECT ROWNUM RNUM, 
+		                A.*, 
+		               (SELECT COUNT(*) FROM TB_LIKE WHERE LIKE_BOARD_NO = A.BOARD_NO) "LIKE_COUNT",  
+		               (SELECT COUNT(*) FROM REPLY R WHERE (REF_BNO = A.BOARD_NO) AND R.STATUS IN (1, -2)) "REPLY_COUNT" 
+		          FROM (
+		                SELECT BOARD_NO, 
+		                       CATEGORY_NAME, 
+		                       BOARD_TITLE, 
+		                       USER_NICKNAME, 
+		                       COUNT, 
+		                       TO_CHAR(CREATE_TIME, 'YYYY-MM-DD') AS CREATE_TIME, 
+		                       MEETING_STATUS 
+		                  FROM BOARD B 
+		                  JOIN CATEGORY USING (CATEGORY_NAME) 
+		                  JOIN MEMBER ON (BOARD_WRITER = USER_NO) 
+		                 WHERE B.STATUS IN (1, -2) 
+		                 ORDER BY BOARD_NO DESC
+		               ) A 
+		        )
+		 WHERE RNUM BETWEEN ? AND ?
+	</entry>
+	<!-- A.CATEGORY = ? / A.MEETING_STATUS = ? 둘다 없을 수도, 둘중 하나만 있을 수도, 둘다 있을 수도 -->
+	<!-- 정렬기능은 따로 쿼리문 만들어 주기 -->
+	
+	<!-- 카테고리 목록 조회용 쿼리문 -->
+	<entry key="selectCategoryList">
+		SELECT * 
+   		  FROM CATEGORY
+	</entry>
+	
+	<!-- 게시글 작성용 쿼리문 -->
+	<entry key="insertBoard">
+		INSERT INTO BOARD(BOARD_NO, 
+						  BOARD_WRITER, 
+		                  BOARD_TITLE, 
+		                  CATEGORY_NAME, 
+		                  MEETING_TIME, 
+		                  PEOPLE_LIMIT, 
+		                  MEETING_SPOT, 
+		                  BOARD_CONTENT, 
+		                  FILE_INFO, 
+		                  FILE_ORIGINNAME
+		                  ) 
+		           VALUES(SEQ_BNO.NEXTVAL, 
+		                  ?, 
+		                  ?, 
+		                  ?, 
+		                  TO_DATE(?, 'YYYY-MM-DD HH24:MI:SS'), 
+		                  ?, 
+		                  ?, 
+		                  ?, 
+		                  ?, 
+		                  ?)
+	</entry>
+	
+	<!-- 게시글 조회수 증가용 쿼리문 -->
+	<entry key="increaseCount">
+		UPDATE BOARD 
+		   SET COUNT = COUNT + 1 
+		 WHERE BOARD_NO = ? 
+		   AND STATUS IN (1, -2)
+	</entry>
+	
+	<!-- 게시글 한건 조회용 쿼리문 -->
+	<entry key="selectBoard">
+		SELECT BOARD_NO, 
+		       BOARD_TITLE, 
+		       BOARD_CONTENT, 
+		       TO_CHAR(CREATE_TIME, 'YYYY. MM. DD. AM HH12:MI') "CREATE_TIME", 
+		       TO_CHAR(MEETING_TIME, 'YYYY"년" MM"월" DD"일" AM HH12"시" MI"분"') "MEETING_TIME", 
+		       MEETING_SPOT, 
+		       FILE_INFO, 
+		       FILE_ORIGINNAME, 
+		       PEOPLE_LIMIT, 
+			   M.USER_PROFILE AS WRITER_PROFILE, 
+		       M.USER_NICKNAME AS BOARD_WRITER, 
+		       CATEGORY_NAME, 
+		       MEETING_STATUS, 
+		       COUNT, 
+		       (SELECT COUNT(*) FROM TB_LIKE WHERE LIKE_BOARD_NO = B.BOARD_NO) "LIKE_COUNT",  
+		       (SELECT COUNT(*) FROM REPLY R WHERE (REF_BNO = BOARD_NO) AND R.STATUS IN (1, -2)) "REPLY_COUNT" 
+		  FROM BOARD B 
+		  LEFT JOIN CATEGORY USING (CATEGORY_NAME) 
+		  JOIN MEMBER M ON (BOARD_WRITER = USER_NO) 
+		 WHERE BOARD_NO = ? 
+		   AND B.STATUS IN (1, -2)
+	</entry>
+	
+	<!-- 게시글 삭제용 쿼리문 -->
+	<entry key="deleteBoard">
+		UPDATE BOARD 
+		   SET STATUS = 0 
+		 WHERE BOARD_NO = ? 
+		   AND STATUS IN (1, -2)
+	</entry>
+	
+	<!-- 게시글 수정용 쿼리문 (UPDATE BOARD 용) (+모집중/모집완료 처리 기능) -->
+	<entry key="updateBoard">
+		UPDATE BOARD 
+		   SET MEETING_STATUS = ?, 
+		       BOARD_TITLE = ?, 
+		       CATEGORY_NAME = ?, 
+		       MEETING_TIME = TO_DATE(?, 'YYYY-MM-DD HH24:MI:SS'), 
+		       PEOPLE_LIMIT = ?, 
+		       MEETING_SPOT = ?, 
+		       BOARD_CONTENT = ?, 
+		       FILE_INFO = ?, 
+		       FILE_ORIGINNAME = ? 
+		 WHERE BOARD_NO = ? 
+		   AND STATUS IN (1, -2)
+	</entry>
+	
+	<!-- 댓글 개수 구하는 쿼리문 -->
+	<entry key="selectLikeCount">
+		SELECT COUNT(*) 
+		  FROM REPLY R 
+		  JOIN BOARD B ON R.REF_BNO = B.BOARD_NO 
+		 WHERE B.BOARD_NO = ? 
+		   AND R.STATUS IN (1, -2)
+	</entry>
+	
+	<!-- 댓글목록 조회용 쿼리문 -->
+	<entry key="selectReplyList">
+		SELECT REPLY_NO, 
+			   REPLY_CONTENT, 
+			   M.USER_NICKNAME "REPLY_WRITER", 
+		       TO_CHAR(R.CREATE_TIME, 'YYYY. MM. DD. AM HH12:MI') "CREATE_TIME", 
+		       M.USER_PROFILE "REPLY_WRITER_PROFILE" 
+		  FROM REPLY R 
+		  JOIN MEMBER M ON (REPLY_WRITER = USER_NO) 
+		 WHERE REF_BNO = ? 
+		   AND R.STATUS IN (1, -2) 
+		 ORDER BY REPLY_NO DESC
+	</entry>
+	
+	<!-- 댓글 작성용 쿼리문 -->
+	<entry key="insertReply">
+		INSERT INTO REPLY(REPLY_NO, 
+		                  REPLY_CONTENT, 
+		                  REF_BNO, 
+		                  REPLY_WRITER) 
+		           VALUES(SEQ_RNO.NEXTVAL, 
+		                  ?, 
+		                  ?, 
+		                  ?)
+	</entry>
+	
+	<!-- 댓글 삭제용 쿼리문 -->
+	<entry key="deleteReply">
+		UPDATE REPLY 
+		   SET STATUS = 0 
+		 WHERE REPLY_NO = ? 
+		   AND STATUS IN (1, -2)
+	</entry>
+	
+	<!-- 게시글 한건 좋아요 개수 구하는 쿼리문 -->
+	<entry key="selectLikeCount">
+		SELECT COUNT(*) 
+		  FROM TB_LIKE 
+		 WHERE LIKE_BOARD_NO = ?
+	</entry>
+	
+	<!-- 게시글 좋아요 누름 체크 여부 조회용 쿼리문 -->
+	<entry key="likeCheck">
+		SELECT COUNT(*) 
+		  FROM TB_LIKE 
+		 WHERE LIKE_USER_NO = ? 
+		   AND LIKE_BOARD_NO = ?
+	</entry>
+	
+	<!-- 좋아요 추가(좋아요 버튼 클릭)용 쿼리문 -->
+	<entry key="insertLike">
+		INSERT INTO TB_LIKE VALUES(?, 
+                           		   ?)
+	</entry>
+	
+	<!-- 좋아요 삭제(취소(좋아요 버튼 한 번 더 클릭))용 쿼리문 -->
+	<entry key="deleteLike">
+		DELETE 
+		  FROM TB_LIKE 
+		 WHERE LIKE_USER_NO = ? 
+		   AND LIKE_BOARD_NO = ?
+	</entry>
+	
+	<!-- 게시글 신고 요청용 쿼리문 -->
+	<entry key="reportBoard">
+		UPDATE BOARD 
+		   SET STATUS = -2 
+		 WHERE BOARD_NO = ? 
+		   AND STATUS = 1
+	</entry>
+	
+	<!-- 댓글 신고 요청용 쿼리문 -->
+	<entry key="reportReply">
+		UPDATE REPLY 
+		   SET STATUS = -2 
+		 WHERE REPLY_NO = ? 
+		   AND STATUS = 1
+	</entry>
+	
+	<!-- 게시글 목록 정렬 조회용 쿼리문 -->
+	<entry key="selectSort">
+		SELECT * 
+		  FROM (
+		        SELECT ROWNUM RNUM, 
+		                A.*, 
+		               (SELECT COUNT(*) FROM TB_LIKE WHERE LIKE_BOARD_NO = A.BOARD_NO) "LIKE_COUNT",  
+		               (SELECT COUNT(*) FROM REPLY R WHERE (REF_BNO = A.BOARD_NO) AND R.STATUS IN (1, -2)) "REPLY_COUNT" 
+		          FROM (
+		                SELECT BOARD_NO, 
+		                       CATEGORY_NAME, 
+		                       BOARD_TITLE, 
+		                       USER_NICKNAME, 
+		                       COUNT, 
+		                       TO_CHAR(CREATE_TIME, 'YYYY-MM-DD') AS CREATE_TIME, 
+		                       MEETING_STATUS 
+		                  FROM BOARD B 
+		                  JOIN CATEGORY USING (CATEGORY_NAME) 
+		                  JOIN MEMBER ON (BOARD_WRITER = USER_NO) 
+		                 WHERE B.STATUS IN (1, -2)
+	</entry>
+</properties>

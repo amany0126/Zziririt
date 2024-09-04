@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글작성</title>
+    <style> 
+        a {
+            text-decoration : none; /* 링크의 밑줄 제거 */
+            color : inherit; /* 링크의 색상 제거 */
+        }
+
+        /* 공지글 작성 부분 */
+        /* 전체를 감싸는 div */
+        .outer {
+            max-width : 800px;
+            margin : auto;
+            margin-top : 50px;
+            padding : 20px;
+            box-sizing : border-box;
+        }
+
+        /* 전체 테이블들 */
+        .outer table {
+            width : 100%;
+            border-collapse : collapse;
+            text-align : center;
+        }
+
+        /* 전체 테이블 줄(가로) 간격 */
+        .outer table td { padding : 10px; }
+
+        /* 전체 테이블 가로 선 */
+        .outer table tr {
+            border : 1px solid black;
+            border-left : none;
+            border-right : none;
+            border-top : none;
+        }
+
+        /* 게시글 제목 */
+        .outer .boardTitle input[type="text"] {
+            width : 100%;
+            padding : 8px;
+            border : none;
+            background-color : rgb(230, 230, 230);
+            box-sizing : border-box;
+            height : 60px;
+            font-size : 25px;
+        }
+        .boardTitle::placeholder {
+            text-align : left;
+            padding-left : 5px;
+            text-size-adjust : 20px;
+        }
+
+        /* 카테고리, 모임 일시, 모임 정원, 모임 지역 글자 */
+        .outer table td label { font-size: 16px; }
+        /* 카테고리, 모임 일시, 모임 지역 부분 버튼 */
+        #categorySelect, 
+        #ddaySelect, 
+        #meetingTime, 
+        #regionSelect, 
+        #citySelect {
+            cursor : pointer;
+        }
+        /* 모임 정원 부분 */
+        #peopleLimit {
+            width : 50px;
+            margin-left : -40px;
+        }
+        /* 모임 장소 부분 */
+        #regionSelect { margin-left : -25px; }
+        /* 모임 장소 상세 부분 */
+        #detailedAddress { width : 450px; }
+
+        /* 게시글 내용 */
+        textarea#content {
+            resize : none;
+            border : none;
+            padding : 8px;
+            font-size : 14px;
+            width : 100%;
+            background-color : rgb(230, 230, 230);
+            box-sizing : border-box;
+        }
+        #content::placeholder {
+            text-align : center;
+            padding-top : 115px;
+        }
+
+        /* 파일 선택 */
+        input[type=file]::file-selector-button { cursor : pointer; }
+        .file-add td {
+            list-style : none;
+            text-align : left;
+        }
+
+        /* 등록 버튼, 초기화 버튼 */
+        #submit-button, #reset-button {
+            height : 30px;
+            cursor : pointer;
+        }
+    </style>
+</head>
+<body>
+    <%@ include file="./header.jsp" %>
+    <br><br><br><br><br>
+    <div class="outer">
+        <form id="enroll-form" 
+              action="" 
+              method="post">
+            <table class="boardTitle">
+                <tr>
+                    <td>
+                      <input type="text" id="title" name="title" placeholder="제목 (30자 이내)" maxlength="30" required>
+                    </td>
+                </tr>
+            </table>
+            
+            <table>
+                <tr>
+                    <td style="width : 70px;"><label for="category">카테고리</label></td>
+                    <td style="width : 100px;">
+                        <select id="categorySelect" name="categorySelect" required>
+                            <option value="">--- 선택 ---</option>
+                            <option value="예술/문화">예술/문화</option>
+                            <option value="운동">운동</option>
+                            <option value="음식">음식</option>
+                            <option value="스터디">스터디</option>
+                            <option value="기타">기타</option>
+                        </select>
+                    </td>
+                    <td style="width : 70px;"><label for="dday">모임 일시</label></td>
+                    <td style="width : 240px;">
+                        <input type="date" id="ddaySelect" name="ddaySelect" required>
+                        <input type="time" id="meetingTime" name="meetingTime" required>
+                    </td>
+                    <td style="width : 70px;"><label for="dday">모임 정원</label></td>
+                    <td>
+                        <input type="number" id="peopleLimit" name="peopleLimit" required>명
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width : 70px;"><label for="area">모임 장소</label></td>
+                    <td colspan="6">
+                        <select id="regionSelect" name="regionSelect" onchange="populateCities()" required>
+                            <option value="">지역 선택</option>
+                            <option value="서울">서울</option>
+                            <option value="경기">경기</option>
+                            <option value="인천">인천</option>
+                            <option value="세종">세종</option>
+                            <option value="충북">충북</option>
+                            <option value="충남">충남</option>
+                            <option value="대전">대전</option>
+                            <option value="전북">전북</option>
+                            <option value="전남">전남</option>
+                            <option value="광주">광주</option>
+                            <option value="대구">대구</option>
+                            <option value="경북">경북</option>
+                            <option value="경남">경남</option>
+                            <option value="부산">부산</option>
+                            <option value="울산">울산</option>
+                            <option value="강원">강원</option>
+                            <option value="제주">제주</option>
+                        </select>
+                        <select id="citySelect" name="citySelect" required>
+                            <option value="">시/군/구 선택</option>
+                        </select>
+                        <input type="text" id="detailedAddress" name="detailedAddress" placeholder="여기에 모임 장소를 상세히 작성해주세요!" required>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td colspan="15">
+                        <textarea id="content" name="content" placeholder="내용" rows="15" required></textarea>
+                    </td>
+                </tr>
+            </table>
+
+            <table class="file-add">
+                <tr>
+                    <td><input class="selectFiles-button" type="file" id="fileAttachment" name="fileAttachment"></td>
+                </tr>
+            </table>
+
+            <br>
+
+            <div align="center">
+				<button id="submit-button" type="submit">
+					등록
+				</button>
+                &nbsp;&nbsp;
+				<button id="reset-button" type="reset">
+					초기화
+				</button>
+			</div>
+        </form>
+    </div>
+
+    <!-- 지역 선택 js -->
+    <script>
+        // 도시 정보를 담고 있는 객체
+        let citiesByRegion = {
+            "서울": ["종로구", "중구", "용산구", "성동구", "광진구", 
+                    "동대문구", "중랑구", "성북구", "강북구", "도봉구", 
+                    "노원구", "은평구", "서대문구", "마포구", "양천구", 
+                    "강서구", "구로구", "금천구", "영등포구", "동작구", 
+                    "관악구", "서초구", "강남구", "송파구", "강동구"], 
+            "경기": ["김포", "부천", "광명", "시흥", "안양", 
+                    "안산", "과천", "의왕", "군포", "성남", 
+                    "수원", "화성", "오산", "평택", "하남", 
+                    "광주", "용인", "안성", "이천", "여주", 
+                    "양평", "가평", "포천", "남양주", "구리", 
+                    "의정부", "동두천", "양주", "파주", "고양", 
+                    "연천"], 
+            "인천": ["계양구", "부평구", "남동구", "연수구", "미추홀구", 
+                    "동구", "서구", "중구", "강화", "옹진"], 
+            "세종": ["세종"], 
+            "충북": ["단양", "제천", "충주", "음성", "진천", 
+                    "괴산", "증평", "청주", "보은", "옥천", 
+                    "영동"], 
+            "충남": ["천안", "아산", "서산", "당진", "공주", 
+                    "보령", "논산", "계룡", "홍성", "예산", 
+                    "부여", "서천", "청양", "태안", "금산"], 
+            "대전": ["동구", "중구", "서구", "유성구", "대덕구"], 
+            "전북": ["전주", "군산", "익산", "정읍", "남원", 
+                    "김제", "완주", "진안", "무주", "장수", 
+                    "임실", "순창", "고창", "부안"], 
+            "전남": ["목포", "여수", "순천", "나주", "광양", 
+                    "담양", "곡성", "구례", "고흥", "보성", 
+                    "화순", "장흥", "강진", "해남", "영암", 
+                    "무안", "함평", "영광", "장성", "완도", 
+                    "진도", "신안"], 
+            "광주": ["동구", "서구", "남구", "북구", "광산구"], 
+            "대구": ["중구", "동구", "서구", "남구", "북구", 
+                    "수성구", "달서구", "달성", "군위"], 
+            "경북": ["포항", "경주", "안동", "김천", "구미", 
+                    "영주", "영천", "상주", "문경", "경산", 
+                    "의성", "청송", "영양", "영덕", "청도", 
+                    "고령", "성주", "칠곡", "예천", "봉화", 
+                    "울진", "울릉"], 
+            "경남": ["창원", "진주", "김해", "양산", "거제", 
+                    "통영", "사천", "밀양", "의령", "함안", 
+                    "창녕", "고성", "남해", "하동", "산청", 
+                    "함양", "거창", "합천"], 
+            "부산": ["중구", "서구", "동구", "영도구", "부산진구", 
+                    "동래구", "남구", "북구", "해운대구", "사하구", 
+                    "금정구", "강서구", "연제구", "수영구", "사상구", 
+                    "기장"], 
+            "울산": ["중구", "남구", "동구", "북구", "울주"], 
+            "강원": ["춘천", "원주", "홍천", "횡성", "영월", 
+                    "평창", "정선", "철원", "화천", "양구", 
+                    "인제", "강릉", "동해", "태백", "속초", 
+                    "삼척", "고성", "양양"], 
+            "제주": ["제주", "서귀포"]
+        };
+        
+        // 도시 선택 select 엘리먼트
+        let citySelect = document.getElementById("citySelect");
+        
+        // 지역 선택 select 엘리먼트의 변경 이벤트 핸들러
+        function populateCities() {
+            // 선택된 지역
+            let selectedRegion = document.getElementById("regionSelect").value;
+            
+            // 해당 지역의 도시들을 가져와서 citySelect 엘리먼트에 추가
+            let cities = citiesByRegion[selectedRegion];
+            citySelect.innerHTML = ""; // 기존 옵션 제거
+            if (cities) {
+                cities.forEach(city => {
+                    let option = document.createElement("option");
+                    option.text = city;
+                    option.value = city;
+                    citySelect.add(option);
+                });
+            } else {
+                let option = document.createElement("option");
+                option.text = "시/군/구 선택";
+                citySelect.add(option);
+            }
+        }
+    </script>
+</body>
+</html>

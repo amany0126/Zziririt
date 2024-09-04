@@ -1,0 +1,632 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+	<entry key="selectListCount">
+		SELECT COUNT(*) COUNT
+		FROM MEMBER
+		WHERE NOT USER_NO =-1
+	</entry>
+	<entry key="selectList">
+		SELECT *
+		FROM(SELECT ROWNUM RNUM, A.*
+		FROM(SELECT
+		USER_NO, USER_ID, USER_NAME, USER_NICKNAME, JOIN_DATE, STATUS
+		FROM
+		MEMBER
+		WHERE NOT USER_NO =-1
+		ORDER BY USER_NO DESC)A )
+		WHERE RNUM BETWEEN ? AND
+		?
+	</entry>
+	<entry key="selectListOne">
+		SELECT USER_NO, USER_ID, USER_NAME, USER_NICKNAME,
+		JOIN_DATE, STATUS
+		FROM MEMBER
+		WHERE USER_NO = ?
+		ORDER BY USER_NO DESC
+	</entry>
+	<entry key="deleteReularUser">
+		UPDATE MEMBER
+		SET STATUS = ?, MODIFY_DATE = SYSDATE
+		WHERE USER_NO = ?
+	</entry>
+
+	<entry key="searchSelectListCount">
+		SELECT COUNT(*) COUNT
+		FROM MEMBER
+		WHERE USER_ID LIKE ?
+		OR USER_NAME LIKE ? OR USER_NICKNAME LIKE ?
+	</entry>
+	<entry key="searchSelectList">
+		SELECT *
+		FROM(SELECT ROWNUM RNUM, A.*
+		FROM(SELECT
+		USER_NO, USER_ID, USER_NAME, USER_NICKNAME, JOIN_DATE, STATUS
+		FROM
+		MEMBER
+		WHERE USER_ID LIKE ? OR USER_NAME LIKE ? OR USER_NICKNAME LIKE ?
+		ORDER BY USER_NO DESC)A)
+		WHERE RNUM BETWEEN ? AND ?
+	</entry>
+
+	<entry key="categoryList">
+		SELECT CATEGORY_NAME
+		FROM CATEGORY
+	</entry>
+
+	<entry key="SelectGroupListCount">
+		SELECT COUNT(*) COUNT
+		FROM TGROUP
+	</entry>
+	<entry key="SelectGroupList">
+		SELECT *
+		FROM(SELECT ROWNUM RNUM, A.*
+		FROM(SELECT
+		GROUP_NO, GROUP_NAME, GROUP_LIMIT, GROUP_CREATEDAY, STATUS,
+		CATEGORY_NAME
+		FROM TGROUP
+		ORDER BY GROUP_NO DESC)A )
+		WHERE RNUM BETWEEN ? AND
+		?
+	</entry>
+
+	<entry key="deleteGroupList">
+		UPDATE TGROUP
+		SET STATUS = ?
+		WHERE GROUP_NO = ?
+	</entry>
+	<entry key="searchSelectGruopListCount">
+		SELECT COUNT(*) COUNT
+		FROM TGROUP
+		WHERE CATEGORY_NAME
+		LIKE ? AND GROUP_NAME LIKE ?
+	</entry>
+	<entry key="searchSelectGruopList">
+		SELECT *
+		FROM(SELECT ROWNUM RNUM, A.*
+		FROM(SELECT
+		GROUP_NO, GROUP_NAME, GROUP_LIMIT, GROUP_CREATEDAY, STATUS,
+		CATEGORY_NAME
+		FROM TGROUP
+		WHERE CATEGORY_NAME LIKE ? AND GROUP_NAME LIKE ?
+		ORDER BY GROUP_NO DESC)A)
+		WHERE RNUM BETWEEN ? AND ?
+	</entry>
+
+	<entry key="SelectGroupUserCount">
+		SELECT COUNT(*) COUNT
+		FROM GROUP_MEM
+	</entry>
+	<entry key="SelectGroupUserList">
+
+		SELECT *
+		FROM(SELECT ROWNUM RNUM, A.*
+		FROM(SELECT
+		GROUP_MEM_NO, GROUP_MEM_TYPE, GROUP_JOIN_DATE, G.STATUS, M.USER_ID,
+		T.GROUP_NAME, T.CATEGORY_NAME
+		FROM GROUP_MEM G
+		JOIN MEMBER M USING
+		(USER_NO)
+		JOIN TGROUP T USING (GROUP_NO)
+		ORDER BY G.GROUP_MEM_NO DESC)A)
+		WHERE RNUM BETWEEN ? AND ?
+	</entry>
+
+	<entry key="updateGroupMemberList">
+		UPDATE GROUP_MEM
+		SET GROUP_MEM_TYPE = ?, STATUS = ?
+		WHERE GROUP_MEM_NO = ?
+		
+	</entry>
+
+	<entry key="searchSelectGruopMemberListCount">
+
+		SELECT COUNT(*) COUNT
+		FROM GROUP_MEM G
+		JOIN TGROUP T
+		USING (GROUP_NO)
+		WHERE T.CATEGORY_NAME LIKE ? AND T.GROUP_NAME LIKE ?
+		ORDER BY G.GROUP_MEM_NO DESC
+	</entry>
+
+
+
+
+	<entry key="searchSelectGruopMemberList">
+		SELECT *
+		FROM(SELECT ROWNUM RNUM, A.*
+		FROM(SELECT
+		GROUP_MEM_NO, GROUP_MEM_TYPE, GROUP_JOIN_DATE, G.STATUS, M.USER_ID,
+		T.GROUP_NAME, T.CATEGORY_NAME
+		FROM GROUP_MEM G
+		JOIN MEMBER M USING
+		(USER_NO)
+		JOIN TGROUP T USING (GROUP_NO)
+		WHERE T.CATEGORY_NAME LIKE ?
+		AND T.GROUP_NAME LIKE ?
+		ORDER BY G.GROUP_MEM_NO DESC)A)
+		WHERE RNUM BETWEEN ?
+		AND ?
+	</entry>
+
+
+	<entry key="SelectGroupBoardReportListCount">
+		SELECT COUNT(*) COUNT
+		FROM GROUP_BOARD
+	</entry>
+
+	<entry key="SelectGroupBoardReportList">
+		select *
+		FROM(SELECT ROWNUM RNUM, A.*
+		FROM(select
+		BOARD_NO,
+		BOARD_TITLE,
+		BOARD_CONTENT,
+		WRITE_TIME,
+		g.STATUS "STATUS",
+		m.STATUS "GROUP_MEM_NO_STATUS",
+		m.USER_ID "USER_ID",
+		t.CATEGORY_NAME
+		"CATEGORY_NAME"
+		from group_board g
+		join TGROUP t using(group_no)
+		join group_mem gm using(group_mem_no)
+		join member m USING (USER_NO)
+		ORDER BY BOARD_NO DESC
+		)A)
+		WHERE
+		RNUM BETWEEN ? AND ?
+	</entry>
+
+	<entry key="searchSelectGruopBoardListCount">
+		SELECT COUNT(*) COUNT
+		FROM group_board G
+		JOIN TGROUP T
+		USING (GROUP_NO)
+		WHERE T.CATEGORY_NAME LIKE ? AND G.STATUS
+		LIKE ?
+		
+	</entry>
+
+	<entry key="searchSelectGruopBoardList">
+		select *
+		FROM(SELECT ROWNUM RNUM, A.*
+		FROM(select
+		BOARD_NO,
+		BOARD_TITLE,
+		BOARD_CONTENT,
+		WRITE_TIME,
+		g.STATUS "STATUS",
+		m.STATUS "GROUP_MEM_NO_STATUS",
+		m.USER_ID "USER_ID",
+		t.CATEGORY_NAME
+		"CATEGORY_NAME"
+		from group_board g
+		join TGROUP t using(group_no)
+		join
+		group_mem gm using(group_mem_no)
+		join member m USING (USER_NO)
+		WHERE
+		T.CATEGORY_NAME LIKE ? AND G.STATUS LIKE ?
+		ORDER BY BOARD_NO DESC
+		)A)
+		WHERE RNUM BETWEEN ? AND
+		?
+	</entry>
+
+	<entry key="checkUserNo">
+		SELECT USER_NO
+		FROM MEMBER
+		WHERE USER_ID = ?
+	</entry>
+
+	<entry key="deleteGroupUser">
+		UPDATE MEMBER
+		SET STATUS = ?, MODIFY_DATE = SYSDATE
+		WHERE USER_ID = ?
+	</entry>
+
+
+	<entry key="deleteGroupBoard">
+		UPDATE GROUP_BOARD
+		SET STATUS = ?
+		WHERE BOARD_NO = ?
+	</entry>
+	<entry key="deleteGroupBoardRepost">
+		INSERT INTO LETTER( LETTER_NO
+		, LETTER_TITLE
+		,
+		LETTER_CONTENT
+		, USER_SENDER
+		, USER_RECEIVER)
+		VALUES( SEQ_LNO.NEXTVAL
+		, ?
+		, ?
+		, 'admin'
+		, ?)
+	</entry>
+	<entry key="selectGroupCommentReportListCount">
+		SELECT COUNT(*) COUNT
+		FROM GROUP_COMMENT
+	</entry>
+
+	<entry key="selectGroupCommentReportList">
+		select *
+		FROM(SELECT ROWNUM RNUM, A.*
+		FROM(SELECT
+		COMMENT_NO, CONTENT, GC.STATUS "COMMENT_STATUS",M.USER_ID "USER_ID",
+		M.STATUS "GROUP_MEM_NO_STATUS",GB.BOARD_TITLE "BOARD_TITLE",
+		GB.BOARD_CONTENT "BOARD_CONTENT" ,
+		T.CATEGORY_NAME "CATEGORY_NAME"
+		FROM
+		GROUP_COMMENT GC
+		JOIN MEMBER M ON(GC.GROUP_MEM_NO=M.USER_NO)
+		JOIN
+		GROUP_BOARD GB USING(BOARD_NO)
+		JOIN TGROUP T USING(GROUP_NO)
+		ORDER BY COMMENT_NO DESC)A)
+		WHERE RNUM BETWEEN ? AND ?
+	</entry>
+
+	<entry key="searchSelectGruopCommentListCount">
+		SELECT COUNT(*) COUNT
+		FROM GROUP_COMMENT GC
+		JOIN
+		GROUP_BOARD GB USING(BOARD_NO)
+		JOIN TGROUP T USING (GROUP_NO)
+		WHERE
+		T.CATEGORY_NAME LIKE ? AND GC.STATUS
+		LIKE ?
+		
+	</entry>
+
+	<entry key="searchSelectGruopCommentList">
+		select *
+		FROM(SELECT ROWNUM RNUM, A.*
+		FROM(SELECT
+		COMMENT_NO, CONTENT, GC.STATUS "COMMENT_STATUS",M.USER_ID "USER_ID",
+		M.STATUS "GROUP_MEM_NO_STATUS",GB.BOARD_TITLE "BOARD_TITLE",
+		GB.BOARD_CONTENT "BOARD_CONTENT" ,
+		T.CATEGORY_NAME "CATEGORY_NAME"
+		FROM
+		GROUP_COMMENT GC
+		JOIN MEMBER M ON(GC.GROUP_MEM_NO=M.USER_NO)
+		JOIN
+		GROUP_BOARD GB USING(BOARD_NO)
+		JOIN TGROUP T USING(GROUP_NO)
+		WHERE
+		T.CATEGORY_NAME LIKE ? AND GC.STATUS LIKE ?
+		ORDER BY BOARD_NO DESC)A)
+		WHERE RNUM BETWEEN ? AND
+		?
+	</entry>
+
+
+	<entry key="deleteGroupCommentUser">
+		UPDATE MEMBER
+		SET STATUS = ?, MODIFY_DATE = SYSDATE
+		WHERE USER_ID = ?
+	</entry>
+	<entry key="deleteGroupCommentBoard">
+		UPDATE GROUP_COMMENT
+		SET STATUS = ?
+		WHERE COMMENT_NO = ?
+	</entry>
+
+	<entry key="checkUserNoComment">
+		SELECT USER_NO
+		FROM MEMBER
+		WHERE USER_ID = ?
+	</entry>
+	<entry key="deleteGroupBoardCommentRepost">
+		INSERT INTO LETTER( LETTER_NO
+		, LETTER_TITLE
+		,
+		LETTER_CONTENT
+		, USER_SENDER
+		, USER_RECEIVER)
+		VALUES( SEQ_LNO.NEXTVAL
+		, ?
+		, ?
+		, 'admin'
+		, ?)
+	</entry>
+
+	<entry key="SelectGeneralBulletinBoardReportListCount">
+		SELECT COUNT(*) COUNT
+		FROM BOARD
+	</entry>
+	<entry key="SelectGeneralBulletinBoardReportList">
+
+		SELECT *
+		FROM(SELECT ROWNUM RNUM, A.*
+		FROM(SELECT
+		BOARD_NO, CATEGORY_NAME, BOARD_TITLE, BOARD_CONTENT, M.USER_ID
+		"BOARD_WRITER",
+		M.STATUS "GROUP_MEM_NO_STATUS", B.STATUS "STATUS"
+		FROM
+		BOARD B
+		JOIN MEMBER M ON (BOARD_WRITER = M.USER_NO)
+		ORDER BY BOARD_NO DESC)A)
+		WHERE RNUM
+		BETWEEN ? AND ?
+	</entry>
+
+	<entry key="searchSelectGeneralBulletinBoardReportListCount">
+		SELECT COUNT(*) COUNT
+		FROM BOARD B
+		JOIN CATEGORY C ON
+		(B.CATEGORY_NAME = C.CATEGORY_NAME)
+		WHERE C.CATEGORY_NAME LIKE ? AND
+		B.STATUS LIKE ?
+	</entry>
+
+	<entry key="searchSelectGeneralBulletinBoardReportList">
+
+		select *
+		FROM(SELECT ROWNUM RNUM, A.*
+		FROM(SELECT BOARD_NO, B.CATEGORY_NAME
+		"CATEGORY_NAME", BOARD_TITLE, BOARD_CONTENT, M.USER_ID "BOARD_WRITER",
+		M.STATUS "GROUP_MEM_NO_STATUS", B.STATUS "STATUS"
+		FROM BOARD B
+		JOIN
+		MEMBER M ON (BOARD_WRITER = M.USER_NO)
+		JOIN CATEGORY C ON
+		(B.CATEGORY_NAME = C.CATEGORY_NAME)
+		WHERE C.CATEGORY_NAME LIKE ? AND
+		B.STATUS LIKE ?
+		ORDER BY BOARD_NO DESC)A)
+		WHERE RNUM BETWEEN ? AND ?
+
+	</entry>
+
+	<entry key="deleteCommonUser">
+		UPDATE MEMBER
+		SET STATUS = ?, MODIFY_DATE = SYSDATE
+		WHERE USER_ID = ?
+	</entry>
+
+	<entry key="deleteCommonBoard">
+		UPDATE BOARD
+		SET STATUS = ?
+		WHERE BOARD_NO = ?
+	</entry>
+
+	<entry key="deleteCommonBoardRepost">
+		INSERT INTO LETTER( LETTER_NO
+		, LETTER_TITLE
+		,
+		LETTER_CONTENT
+		, USER_SENDER
+		, USER_RECEIVER)
+		VALUES( SEQ_LNO.NEXTVAL
+		, ?
+		, ?
+		, 'admin'
+		, ?)
+	</entry>
+
+	<entry key="selectCommonCommentReportListCount">
+		SELECT COUNT(*) COUNT
+		FROM REPLY
+	</entry>
+
+	<entry key="selectCommonCommentReportList">
+
+
+		select *
+		FROM(SELECT ROWNUM RNUM, A.*
+		FROM(select REPLY_NO, REPLY_CONTENT,
+		M.USER_ID "USER_ID", R.STATUS "STATUS", C.CATEGORY_NAME
+		"CATEGORY_NAME", B.BOARD_TITLE "TITLE", M.STATUS "GROUP_MEM_NO_STATUS"
+		FROM REPLY R
+		JOIN MEMBER M ON (REPLY_WRITER = M.USER_NO)
+		JOIN BOARD B ON (REF_BNO = B.BOARD_NO)
+		JOIN CATEGORY C ON (B.CATEGORY_NAME = C.CATEGORY_NAME)
+		ORDER BY REPLY_NO DESC)A)
+		WHERE RNUM
+		BETWEEN ? AND ?
+
+	</entry>
+
+	<entry key="searchSelectCommonCommentListCount">
+		SELECT COUNT(*) COUNT
+		FROM REPLY R
+		JOIN BOARD B ON
+		(REF_BNO = B.BOARD_NO)
+		JOIN CATEGORY C ON (B.CATEGORY_NAME =
+		C.CATEGORY_NAME)
+		WHERE C.CATEGORY_NAME LIKE ? AND R.STATUS LIKE ?
+	</entry>
+
+	<entry key="searchSelectCommonCommentList">
+
+		select *
+		FROM(SELECT ROWNUM RNUM, A.*
+		FROM(select REPLY_NO, REPLY_CONTENT,
+		M.USER_ID "USER_ID", R.STATUS "STATUS", C.CATEGORY_NAME
+		"CATEGORY_NAME", B.BOARD_TITLE "TITLE", M.STATUS "GROUP_MEM_NO_STATUS"
+		FROM REPLY R
+		JOIN MEMBER M ON (REPLY_WRITER = M.USER_NO)
+		JOIN BOARD B ON (REF_BNO = B.BOARD_NO)
+		JOIN CATEGORY C ON (B.CATEGORY_NAME
+		= C.CATEGORY_NAME)
+		WHERE C.CATEGORY_NAME LIKE ? AND R.STATUS LIKE ? 
+		ORDER BY REPLY_NO DESC)A)
+		WHERE RNUM BETWEEN ? AND ?
+
+	</entry>
+
+	<entry key="deleteCommonCommentUser">
+		UPDATE MEMBER
+		SET STATUS = ?, MODIFY_DATE = SYSDATE
+		WHERE USER_ID = ?
+	</entry>
+
+	<entry key="deleteCommonBoardComment">
+		UPDATE REPLY
+		SET STATUS = ?
+		WHERE REPLY_NO = ?
+	</entry>
+
+	<entry key="deleteCommonBoardCommentRepost">
+		INSERT INTO LETTER( LETTER_NO
+		, LETTER_TITLE
+		,
+		LETTER_CONTENT
+		, USER_SENDER
+		, USER_RECEIVER)
+		VALUES( SEQ_LNO.NEXTVAL
+		, ?
+		, ?
+		, 'admin'
+		, ?)
+	</entry>
+
+	<entry key="reportCount1">
+		SELECT COUNT(*) COUNT
+		FROM BOARD
+		WHERE STATUS = -2
+	</entry>
+	<entry key="reportCount2">
+		SELECT COUNT(*) COUNT
+		FROM REPLY
+		WHERE STATUS = -2
+	</entry>
+	<entry key="reportCount3">
+		SELECT COUNT(*) COUNT
+		FROM GROUP_BOARD
+		WHERE STATUS = -2
+	</entry>
+	<entry key="reportCount4">
+		SELECT COUNT(*) COUNT
+		FROM GROUP_COMMENT
+		WHERE STATUS =
+		-2
+	</entry>
+
+	<entry key="category">
+		SELECT COUNT(*) COUNT
+		FROM TGROUP
+		WHERE STATUS = 1 AND
+		CATEGORY_NAME LIKE ?
+	</entry>
+	<entry key="selectMeetingListCount">
+		SELECT COUNT(*) COUNT
+		FROM MEETING
+	</entry>
+
+	<entry key="selectMeetingList">
+
+		select *
+		FROM(SELECT ROWNUM RNUM, A.*
+		FROM(SELECT MEETING_NO, MEETING_NAME,
+		MEETING_SPOT, G.GROUP_NAME "GROUP_NO", ME.STATUS "STATUS", M.USER_ID
+		"CREATE_USER"
+		FROM MEETING ME
+		JOIN TGROUP G USING (GROUP_NO)
+		JOIN MEMBER M ON (ME.CREATE_USER = M.USER_NO)
+		ORDER BY MEETING_NO DESC)A)
+		WHERE RNUM BETWEEN ? AND ?
+
+	</entry>
+
+	<entry key="searchSelectMeetingListCount">
+		SELECT COUNT(*) COUNT
+		FROM MEETING
+		JOIN TGROUP G USING
+		(GROUP_NO)
+		WHERE G.GROUP_NAME LIKE ?
+	</entry>
+
+	<entry key="searchSelectMeetingList">
+
+		select *
+		FROM(SELECT ROWNUM RNUM, A.*
+		FROM(SELECT MEETING_NO, MEETING_NAME,
+		MEETING_SPOT, G.GROUP_NAME "GROUP_NO", ME.STATUS "STATUS", M.USER_ID
+		"CREATE_USER"
+		FROM MEETING ME
+		JOIN TGROUP G USING (GROUP_NO)
+		JOIN MEMBER M ON (ME.CREATE_USER = M.USER_NO)
+		WHERE G.GROUP_NAME LIKE ?
+		ORDER BY MEETING_NO DESC)A)
+		WHERE RNUM BETWEEN ? AND ?
+
+	</entry>
+
+	<entry key="deleteMeeting">
+		UPDATE MEETING
+		SET STATUS = ?
+		WHERE MEETING_NO = ?
+	</entry>
+
+	<entry key="selectMeetingMemberListCount">
+
+		SELECT COUNT(*) COUNT
+		FROM MEETING_MEM
+
+	</entry>
+	<entry key="selectMeetingMemberList">
+
+		select *
+		FROM(SELECT ROWNUM RNUM, A.*
+		FROM(SELECT MM.MEETING_NO,
+		MT.MEETING_NAME "MEETING_TITLE",MM.GROUP_MEM_NO "GROUP_MEM_NO" ,
+		M.USER_ID "GROUP_MEM_ID", MM.STATUS "STATUS", M.STATUS
+		"GROUP_MEM_NO_STATUS"
+		FROM MEETING_MEM MM
+		JOIN MEETING MT ON(MM.MEETING_NO=MT.MEETING_NO)
+		JOIN MEMBER M ON(MM.GROUP_MEM_NO=M.USER_NO)
+		ORDER BY MM.MEETING_NO DESC
+		)A)
+		WHERE RNUM BETWEEN ? AND ?
+
+
+	</entry>
+
+	<entry key="searchSelectMeetingMemberListCount">
+		SELECT COUNT(*) COUNT
+		FROM MEETING_MEM MT
+		JOIN MEETING
+		MT ON(MM.MEETING_NO=MT.MEETING_NO)
+		WHERE MT.MEETING_NAME LIKE ?
+	</entry>
+
+	<entry key="searchSelectMeetingMemberList">
+
+		select *
+		FROM(SELECT ROWNUM RNUM, A.*
+		FROM(SELECT MM.MEETING_NO,
+		MT.MEETING_NAME "MEETING_TITLE",MM.GROUP_MEM_NO "GROUP_MEM_NO" ,
+		M.USER_ID "GROUP_MEM_ID", MM.STATUS "STATUS", M.STATUS
+		"GROUP_MEM_NO_STATUS"
+		FROM MEETING_MEM MM
+		JOIN MEETING MT ON(MM.MEETING_NO=MT.MEETING_NO)
+		JOIN MEMBER M ON(MM.GROUP_MEM_NO=M.USER_NO)
+		WHERE MT.MEETING_NAME LIKE ?
+		ORDER BY MM.MEETING_NO DESC
+
+		)A)
+		WHERE RNUM BETWEEN ? AND ?
+
+
+	</entry>
+
+	<entry key="deleteMeetingMemberUser">
+		UPDATE MEMBER
+		SET STATUS = ?, MODIFY_DATE = SYSDATE
+		WHERE USER_Id = ?
+	</entry>
+
+	<entry key="deleteMeetingMemberRank">
+		UPDATE MEETING_MEM
+		SET STATUS = ?
+		WHERE MEETING_NO = ? AND GROUP_MEM_NO = ?
+	</entry>
+	<entry key="checkUserId">
+		SELECT USER_ID
+		FROM MEMBER
+		WHERE USER_NO = ?
+	</entry>
+</properties>

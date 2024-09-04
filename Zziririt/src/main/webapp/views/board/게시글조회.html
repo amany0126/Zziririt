@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글조회</title>
+    <style>
+        a {
+            text-decoration : none; /* 링크의 밑줄 제거 */
+            color : inherit; /* 링크의 색상 제거 */
+        }
+
+        /* 전체를 감싸는 div */
+        .outer {
+            width : 1000px;
+            margin : auto;
+            margin-top : 50px;
+            box-sizing : border-box;
+        }
+
+        /* 전체 테이블 */
+        .outer table {
+            width : 100%;
+            border-collapse : collapse;
+            font-size : 16px;
+            text-align : center;
+        }
+
+        .outer table td {
+            padding : 10px;
+            white-space : nowrap; /* 줄바꿈 방지 */
+            overflow : hidden; /* 넘치는 부분을 숨김 */
+            text-overflow : ellipsis; /* 넘치는 부분을 ...으로 표시 */
+        }
+
+        .border-table tr {
+            border : 2px solid black;
+            width : 110px;
+            border-left : none;
+            border-right : none;
+            border-top : none;
+        }
+
+        .outer label {
+            font-size : 16px;
+            text-align : center;
+        }
+
+        /* 상단부 (프로필&제목 부분) */
+        .boardHeader { width : 80px; }
+
+        /* 프로필 */
+        .rounded-profile {
+            border-radius : 50%;
+            width : 50px;
+            height : 50px;
+        }
+
+        .rounded-profile-container {
+            display : flex;
+            justify-content : center;
+            align-items : center;
+            margin-top : 20px;
+        }
+
+        .title-container {
+            display : flex;
+            align-items : center;
+        }
+
+        .title {
+            font-size : 28px;
+            margin : 0;
+            text-align : left;
+            width : 850px;
+            white-space : nowrap; /* 줄바꿈 방지 */
+            overflow : hidden; /* 넘치는 부분을 숨김 */
+            text-overflow : ellipsis; /* 넘치는 부분을 ...으로 표시 */
+        }
+
+        /* 닉네임 */
+        .nickname {
+            font-size : 14px;
+            margin-top : 5px;
+            margin-bottom : 5px;
+            text-align : center;
+        }
+
+        /* 제목 */
+        .boardTitle border-table tr {
+            height : 80px;
+            box-sizing : border-box;
+        }
+
+        /* 모집중 / 모집마감 딱지 */
+        /* 모집중인 경우의 태그 */
+        .price-info-ok {
+            text-align : right;
+            white-space : nowrap;
+            background-color : yellow;
+            padding : 2px 8px;
+            border-radius : 4px;
+            font-size : 16px;
+            color : black;
+            margin-left : -65px;
+        }
+
+        /* 모집마감인 경우의 태그 */
+        .price-info-no {
+            text-align : right;
+            white-space : nowrap;
+            background-color : #888;
+            padding : 2px 8px;
+            border-radius : 4px;
+            font-size : 16px;
+            color : #fff;
+            margin-left : -75px;
+        }
+
+        /* 모집중/모집마감 아이콘 설정 (인데 아직 필요없을 듯) */
+        /* .fa-circle {
+            color : red;
+            font-size : 11px;
+        }
+        .square-icon {
+            color : #333333;
+            font-size : 11px;
+        }
+        .item-details {
+            padding : 15px 0px 0px 5px;
+            display : flex;
+            float : right;
+            margin-top : -11px;
+        }
+        .item-details-td { width : 100px; } */
+
+        /* 사용하지 않는 부분 */
+        /* .tableA {
+            margin-left : auto;
+            margin-right : auto;
+            padding : 7px;
+            border-spacing : 10px 5px;
+        }
+        .tableA td {
+            list-style : none;
+            text-align : center;
+        } */
+
+        /* 드롭다운 버튼 */
+        .dropdown {
+            position : absolute;
+            margin-left : 870px;
+        }
+
+        .dropdown-toggle {
+            cursor : pointer;
+            color : #000;
+            font-size : 30px;
+        }
+
+        .dropdown-content {
+            display : none;
+            position : absolute;
+            background-color : #f9f9f9;
+            min-width : 120px;
+            box-shadow : 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index : 1;
+            padding : 10px;
+            text-align : center;
+        }
+
+        .dropdown-content a {
+            padding : 5px 0;
+            text-decoration : none;
+            display : block;
+        }
+
+        .dropdown-content a:hover { background-color : rgb(230, 230, 230); }
+
+        /* 작성시간 */
+        .date {
+            text-align : right;
+            padding : 0px 30px;
+            margin-bottom : -20px
+        }
+
+        /* 카테고리, 모임 일시, 모임 정원, 모임 장소 부분 */
+        .info-table {
+            width : 1000px;
+            height : 100px;
+            margin : 20px auto;
+            overflow : hidden;
+        }
+
+        .info-table td,
+        .info-table tr { border : 2px solid black; }
+
+        .info-table td:nth-child(odd) { background-color : rgb(230, 230, 230); }
+
+        /* 내용 */
+        .contents {
+            text-align : center;
+            margin-top : -15px;
+        }
+
+        .outer p#content {
+            width : 980px;
+            height : 300px;
+            resize : none;
+            /* padding : 8px; */
+            font-size : 16px;
+            box-sizing : border-box;
+            border : none;
+            text-align : left;
+        }
+
+        /* 추천 버튼 */
+        /* 클릭시 버튼 스타일 */
+        .clicked { background-color : lightpink; }
+
+        /* 댓글 */
+        #comment-div {
+            border : 1px solid black;
+            padding : 10px;
+            padding-bottom : 7px;
+            margin-top : 10px;
+            width : 950px;
+        }
+
+        #comment2-div { padding : 10px; }
+
+        #comment-person {
+            width : 100%;
+            margin-bottom : 10px;
+        }
+
+        #comment,
+        #comments { resize : none; }
+
+        #comments { margin-top : 5px; }
+
+        #comments:focus { outline : none; }
+
+        .rounded-profile-container2 { width : 30px; }
+
+        .rounded-profile2 {
+            border-radius : 50%;
+            width : 30px;
+            height : 30px;
+        }
+
+        /* 댓글을 쓴 작성자의 닉네임 */
+        .nickname2 {
+            display : inline-block;
+            margin-left : 5px;
+            margin-top : 6px;
+        }
+
+        .comment-date {
+            display : inline-block;
+            /* text-align : right; */
+        }
+
+        #comment-personImage { margin-bottom : -30px; }
+
+        /* 추천 버튼, 댓글 등록 버튼 */
+        #recommend,
+        #comment-submit { cursor : pointer; }
+
+        #comments { border : 1px solid black; }
+
+        /* 신고 기능 드롭다운 버튼 */
+        .comment-dropdown { display : inline-block; }
+
+        .dropdown-toggle2, .dropdown-toggle3 {
+            cursor : pointer;
+            color : #000;
+            font-size : 15px;
+        }
+
+        .dropdown-content2 {
+            display : none;
+            position : absolute;
+            background-color : #f9f9f9;
+            min-width : 30px;
+            box-shadow : 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index : 1;
+            padding : 5px;
+            text-align : center;
+        }
+
+        .dropdown-content2 a:hover { background-color : rgb(230, 230, 230); }
+
+        .dropdown-content2 a {
+            text-decoration : none;
+            display : block;
+        }
+
+        /* "목록으로" 버튼 */
+        .outer .list-button {
+            cursor : pointer;
+            font-size : 16px;
+            width : 120px;
+            height : 40px;
+            margin-top : 20px;
+        }
+
+        /* 첨부파일 */
+        .list-td { width : 560px; }
+
+        .upFiles td {
+            font-size : 14px;
+            text-align : left;
+        }
+
+        .upFiles tr:last-child { border-bottom : none; }
+
+        .upFiles i { margin-right : 3px; }
+
+        /* 이미지 파일 */
+        /* img {
+            width : 100%;
+            height : 100%;
+            object-fit : fill;
+            border-radius : 50%;
+        } */
+    </style>
+</head>
+
+<body>
+    <br><br><br><br>
+    <div class="outer">
+        <table class="boardTitle border-table">
+            <tr>
+                <td class="boardHeader">
+                    <div class="rounded-profile-container">
+                        <img src="../resources/image/hyuksoo.png" alt="Profile Image" class="rounded-profile">
+                    </div>
+                    <p class="nickname">삿된희망</p>
+                </td>
+                <td style="margin-top : 30px;">
+                    <div class="title-container">
+                        <h2 class="title">같이 피방 가실 분 구함!!</h2>
+                        <div class="price-info-ok">
+                            <i class="fas fa-circle"></i>모집중
+                        </div>
+                        <!-- 드롭다운 - 이건 본인이 쓴 글에만 노출됨 -->
+                        <div class="dropdown">
+                            <span class="dropdown-toggle">⋮</span>
+                            <div id="mypageDropdown" class="dropdown-content">
+                                <!-- 로그인한 사람이고 본인이 쓴 글일 때만 보임 -->
+                                <a href="게시글수정.html">수정</a>
+                                <a href="">삭제</a>
+
+                                <!-- 로그인한 사람이고 본인이 쓴 글이 아닐 때만 보임 -->
+                                <!-- <a href="">신고</a> -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="date">조회수 8 &nbsp;|&nbsp; 2024. 04. 02. 오후 12:33</div>
+                </td>
+            </tr>
+        </table>
+
+        <!-- <table class="tableA">
+            <td class="item-details-td">
+                <div class="item-details">
+                    <div class="price-info-ok" th:if="${ctPostDTO.hiring == 'now-hiring'}">
+                        <i class="fas fa-circle"></i> 모집중
+                    </div>
+                    <div class="price-info-no" th:if="${ctPostDTO.hiring == 'hiring-closed'}">
+                        <i class="fas fa-square square-icon"></i> 모집마감
+                    </div>
+                </div>
+            </td>
+        </table> -->
+
+        <table class="info-table">
+            <tr>
+                <td style="width : 10%;">
+                    <!-- <div class="label-div"><i class="fas fa-won-sign fa-lg"></i>&nbsp;</div> -->
+                    카테고리
+                </td>
+                <td style="width : 20%;">기타</td>
+                <td style="width : 10%;">
+                    <!-- <div class="label-div"><i class="fas fa-file-alt"></i>&nbsp;</div> -->
+                    모임 일시
+                </td>
+                <td style="width : 40%;">2024년 5월 3일 오후 10시</td>
+                <td style="width : 10%;">
+                    <!-- <div class="label-div"><i class="far fa-calendar-alt fa-lg"></i>&nbsp;</div> -->
+                    모임 정원
+                </td>
+                <td style="width : 10%;">4명</td>
+            </tr>
+            <tr>
+                <td>
+                    <!-- <div class="label-div"><i class="far fa-calendar-alt fa-lg"></i>&nbsp;</div> -->
+                    모임 장소
+                </td>
+                <td colspan="5">서울시 영등포구 선유로~~ ○○빌딩 3층 □□□PC방</td>
+            </tr>
+        </table>
+
+        <table class="contents border-table">
+            <tr style="border : none;">
+                <td colspan="6">
+                    <p id="content">쪽지로 연락주세요!!</p>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="6">
+                    <button id="recommend" style="float : right;">추천 120</button>
+                </td>
+            </tr>
+        </table>
+
+        <table class="upFiles border-table">
+            <tr>
+                <td class="td-file">
+                    <span class="span-file">
+                        첨부파일:&nbsp;
+                        <a th:if="${attachmentDTO.originalFileName!='' && attachmentDTO.originalFileName!=null}"
+                            class="download-link" th:href="${attachmentDTO.fileDownloadUri}" download>
+                            <i class="fas fa-download"></i><span
+                                th:text="${attachmentDTO.originalFileName}">파일명.확장자</span>
+                        </a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    총 2개의 댓글
+                    <fieldset id="comment-div">
+                        <div id="comment-person">
+                            <div class="rounded-profile-container2" style="float : left;">
+                                <img src="../resources/image/귀여운 네즈코.jpg" alt="Profile Image" class="rounded-profile2">
+                            </div>
+                            <div class="nickname2">
+                                네즈코사랑꾼
+                            </div>
+                            <br clear="both">
+                        </div>
+                        <hr>
+                        <div>
+                            <textarea id="comment" name="comment" style="width : 99%;" rows="4" maxlength="300"
+                                placeholder="댓글은 공백 포함 300자까지만 작성 가능합니다. 비방이나 욕설을 쓰면 신고 당할 수 있습니다."></textarea>
+                            <br>
+                            <hr>
+                            <span id="count" style="color : black;">0</span> / 300자
+                            <input type="submit" id="comment-submit" style="float : right;" value="등록">
+                        </div>
+                    </fieldset>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div id="comment-person" style="border : none; display: flex;" >
+                        <!-- 프로필과 아이디 -->
+                        <div style="width : 50%;" align="left">
+                            <div id="comment-personImage" class="rounded-profile-container2" style="float : left;">
+                                <img src="../resources/image/koongya.jpg" alt="Profile Image" class="rounded-profile2">
+                            </div>
+                            <div class="nickname2">
+                                쿵야
+                            </div>
+                        </div>
+                        <!-- 날짜와 드롭다운 -->
+                        <div style="width : 50%; padding-top : 7px;" align="right">
+                            <div class="comment-date">
+                                2024. 04. 02. 오후 5:12
+                            </div>
+                            <div class="comment-dropdown">
+                                <span class="dropdown-toggle2">&nbsp;⋮&nbsp;</span>
+                                <div id="notifyDropdown" class="dropdown-content2">
+                                    <!-- 수정 및 삭제는 본인이 작성한 댓글일 경우 -->
+                                    <!-- <a href="">수정</a>
+                                    <a href="">삭제</a> -->
+                                    <a href="">신고</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <br clear="both">
+                    </div>
+                    <div>
+                        <textarea id="comments" name="comments" style="width : 99%;" rows="4" maxlength="300"
+                            readonly>거기 음식 ㅈㄴ 맛없어요</textarea>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div id="comment-person" style="border : none; display: flex;" >
+                        <!-- 프로필과 아이디 -->
+                        <div style="width : 50%;" align="left">
+                            <div id="comment-personImage" class="rounded-profile-container2" style="float : left;">
+                                <img src="../resources/image/flower.jpg" alt="Profile Image" class="rounded-profile2">
+                            </div>
+                            <div class="nickname2">
+                                뎡미니
+                            </div>
+                        </div>
+                        <!-- 날짜와 드롭다운 -->
+                        <div style="width : 50%; padding-top : 7px;" align="right">
+                            <div class="comment-date">
+                                2024. 04. 02. 오후 1:57
+                            </div>
+                            <div class="comment-dropdown">
+                                <span class="dropdown-toggle3">&nbsp;⋮&nbsp;</span>
+                                <div id="notifyDropdown2" class="dropdown-content2">
+                                    <!-- 수정 및 삭제는 본인이 작성한 댓글일 경우 -->
+                                    <a href="">수정</a>
+                                    <a href="">삭제</a>
+                                    <!-- <a href="">신고</a> -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <br clear="both">
+                    </div>
+                    <div>
+                        <textarea id="comments" name="comments" style="width : 99%;" rows="4" maxlength="300"
+                            readonly>님 롤 티어 어딤?</textarea>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th class="list-th"><button class="list-button" onclick="openBoardList();"><i
+                            class="fas fa-comments"></i>목록으로</button></th>
+            </tr>
+        </table>
+    </div>
+
+    <!-- 수정/삭제 드롭다운 버튼 js -->
+    <script>
+        let dropdownToggle = document.querySelector(".dropdown-toggle");
+        let dropdownContent = document.querySelector(".dropdown-content");
+
+        dropdownToggle.addEventListener("click", function () {
+            if (dropdownContent.style.display === "block") {
+                dropdownContent.style.display = "none";
+            } else {
+                dropdownContent.style.display = "block";
+            }
+        });
+
+        document.addEventListener("click", function (event) {
+            if (!dropdownToggle.contains(event.target) && !dropdownContent.contains(event.target)) {
+                dropdownContent.style.display = "none";
+            }
+        });
+    </script>
+
+    <!-- 신고 드롭다운 버튼 js -->
+    <script>
+        let dropdownToggle2 = document.querySelector(".dropdown-toggle2");
+        let notifyDropdown = document.querySelector("#notifyDropdown");
+
+        dropdownToggle2.addEventListener("click", function () {
+            if (notifyDropdown.style.display === "block") {
+                notifyDropdown.style.display = "none";
+            } else {
+                notifyDropdown.style.display = "block";
+            }
+        });
+
+        document.addEventListener("click", function (event) {
+            if (!dropdownToggle2.contains(event.target) && !notifyDropdown.contains(event.target)) {
+                notifyDropdown.style.display = "none";
+            }
+        });
+    </script>
+    <script>
+        let dropdownToggle3 = document.querySelector(".dropdown-toggle3");
+        let notifyDropdown2 = document.querySelector("#notifyDropdown2");
+
+        dropdownToggle3.addEventListener("click", function () {
+            if (notifyDropdown2.style.display === "block") {
+                notifyDropdown2.style.display = "none";
+            } else {
+                notifyDropdown2.style.display = "block";
+            }
+        });
+
+        document.addEventListener("click", function (event) {
+            if (!dropdownToggle3.contains(event.target) && !notifyDropdown2.contains(event.target)) {
+                notifyDropdown2.style.display = "none";
+            }
+        });
+    </script>
+
+    <!-- 추천 버튼 클릭하는 순간 버튼의 색상이 바뀌고 한 번 더 클릭하면 원상태로 돌아오는 js -->
+    <script>
+        // 버튼 요소를 가져옴
+        let submitButton = document.getElementById("recommend");
+
+        // 버튼 클릭 이벤트에 대한 핸들러 함수
+        submitButton.addEventListener("click", function () {
+            // 버튼에 clicked 클래스 추가 (토글 기능)
+            if (submitButton.classList.contains("clicked")) {
+                submitButton.classList.remove("clicked");
+            } else {
+                submitButton.classList.add("clicked");
+            }
+        });
+    </script>
+
+    <!-- 댓글 글자 수 세는 js -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let introduceInput = document.getElementById("comment");
+            let countDisplay = document.getElementById("count");
+
+            introduceInput.addEventListener("input", function () {
+                countDisplay.textContent = this.value.length; // 공백 포함
+            });
+        });
+    </script>
+
+    <!-- 목록으로 버튼 js -->
+    <script>
+        function openBoardList() {
+            window.open("일반게시판목록.html", "게시글 목록 페이지");
+        }
+    </script>
+</body>
+</html>

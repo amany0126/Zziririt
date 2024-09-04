@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+
+<!-- member-mapper -->
+<entry key="insertMember"> INSERT INTO MEMBER(USER_NO, USER_ID, USER_PWD, USER_NICKNAME, USER_NAME, USER_GENDER, USER_PROFILE, USER_PHONE, USER_MAIL, BIRTH_DATE, ADDRESS, INTRODUCE_CONTENT) VALUES(SEQ_UNO.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) </entry>
+
+<!--  닉네임 중복확인용 쿼리문  -->
+<entry key="nicknameCheck"> SELECT COUNT(*) FROM MEMBER WHERE USER_NICKNAME = ? </entry>
+
+<!--  아이디 중복확인용 쿼리문  -->
+<entry key="idCheck"> SELECT COUNT(*) FROM MEMBER WHERE USER_ID = ? </entry>
+
+<!-- 로그인용 쿼리문 -->
+	<entry key="loginMember">
+		SELECT *
+	        FROM MEMBER
+	        WHERE USER_ID = ?
+	         	AND USER_PWD = ?
+	         	 AND STATUS =  1
+	</entry>
+</properties>
