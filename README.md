@@ -44,12 +44,18 @@
 - 신고된 게시글 및 댓글 관리 및 조회
 
 ## 💻 화면 구현
-
+- 관리자 메인페이지
 ![관리자 메인페이지 이미지](https://github.com/user-attachments/assets/c001df84-3864-482c-b002-7848bfb0668c)
+- 회원 조회 페이지
 ![사용자 조회  페이지](https://github.com/user-attachments/assets/b6a300f0-a269-43fa-943d-970a276e1beb)
+- 회원 상태 관리 페이지
 ![사용자 관리 페이지](https://github.com/user-attachments/assets/efcc58c8-bd60-481e-8fc4-25d453e953e7)
+- 작성된 게시글 조회 페이지
 ![게시글 조회 페이지](https://github.com/user-attachments/assets/d0711fe1-ec7f-4dc8-8db0-b569e118039b)
+- 작성된 게시글 상태 관리 페이지
 ![게시글 관리 페이지](https://github.com/user-attachments/assets/92d64670-a7b8-4ad1-8d54-fba17ffb2fb2)
+- 작성된 댓글 조회 페이지
 ![게시글 댓글 조회 페이지](https://github.com/user-attachments/assets/688e7762-7901-4c99-9b4c-f9b3b2d43339)
+- 작성된 댓글 상태 관리 페이지
 ![게시글 댓글 관리 페이지](https://github.com/user-attachments/assets/25803db6-cc4a-434e-b43f-80d950a44125)
 
