@@ -12,8 +12,7 @@
 2. 모바일 기기에서 작동되도록 반응형으로 구현
 
 
-
-- ## ⚙️ 개발 환경
+## ⚙️ 개발 환경
 ![이미지](https://github.com/user-attachments/assets/a3885e0e-fa8e-4410-8c29-d4a79507249e)
 - sqldelveloper Oracle
 - Visual Studio Code
@@ -25,7 +24,11 @@
 - CSS3
 
 
- ## 📝 사용 사례 다이어그램 / ERD
+## 📝 USE CASE 다이어그램 / ERD
+-USE CASE 다이어그램
+![유즈케이스](https://github.com/user-attachments/assets/faffb2cb-e33e-4ae3-9ab5-6cef31659780)
+-ERD
+![erd](https://github.com/user-attachments/assets/d520a881-2a74-49b5-be16-6a57c0b5a56c)
 
 ## 📄 기능 구현
 회원
